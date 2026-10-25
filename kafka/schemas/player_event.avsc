@@ -1,0 +1,23 @@
+{
+  "type": "record",
+  "name": "PlayerEvent",
+  "namespace": "com.gaming.anticheat",
+  "doc": "A single in-game player action event (kill, death, move, ability, etc.)",
+  "fields": [
+    {"name": "event_id",        "type": "string",  "doc": "UUID for this event"},
+    {"name": "player_id",       "type": "string",  "doc": "Unique player identifier"},
+    {"name": "session_id",      "type": "string",  "doc": "Current game session ID"},
+    {"name": "match_id",        "type": ["null","string"], "default": null, "doc": "Match this event belongs to"},
+    {"name": "event_type",      "type": {"type":"enum","name":"EventType",
+      "symbols":["kill","death","move","ability_use","disconnect","connect","match_start","match_end","respawn","item_pickup"]},
+      "doc": "Type of player action"},
+    {"name": "is_headshot",     "type": ["null","boolean"], "default": null},
+    {"name": "reaction_time_ms","type": ["null","int"],     "default": null, "doc": "Time from enemy visible to shot fired (ms)"},
+    {"name": "accuracy_pct",    "type": ["null","float"],   "default": null, "doc": "Shot accuracy percentage 0-100"},
+    {"name": "weapon",          "type": ["null","string"],  "default": null},
+    {"name": "score_delta",     "type": ["null","int"],     "default": null},
+    {"name": "is_suspicious",   "type": "boolean", "default": false, "doc": "Producer-side cheat flag"},
+    {"name": "schema_version",  "type": "string",  "default": "1.0"},
+    {"name": "client_ts",       "type": "string",  "doc": "ISO-8601 client timestamp"}
+  ]
+}

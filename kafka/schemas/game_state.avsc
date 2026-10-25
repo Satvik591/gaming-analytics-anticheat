@@ -1,0 +1,28 @@
+{
+  "type": "record",
+  "name": "GameState",
+  "namespace": "com.gaming.anticheat",
+  "doc": "Server-side game tick telemetry — PRIMARY source for anti-cheat detection",
+  "fields": [
+    {"name": "state_id",              "type": "string", "doc": "UUID for this tick"},
+    {"name": "match_id",              "type": "string"},
+    {"name": "player_id",             "type": "string"},
+    {"name": "tick_number",           "type": "long",   "doc": "Monotonically increasing tick counter"},
+    {"name": "position_x",            "type": "float"},
+    {"name": "position_y",            "type": "float"},
+    {"name": "position_z",            "type": "float"},
+    {"name": "velocity",              "type": "float",  "doc": "Movement speed in units/sec. Limit=300"},
+    {"name": "health",                "type": "int",    "doc": "Player health 0-100"},
+    {"name": "kills",                 "type": "int",    "default": 0},
+    {"name": "headshot_rate",         "type": "float",  "doc": "Rolling headshot rate 0.0-1.0"},
+    {"name": "reaction_time_ms",      "type": "int",    "doc": "Reaction time in milliseconds"},
+    {"name": "accuracy_pct",          "type": "float",  "doc": "Accuracy percentage 0-100"},
+    {"name": "cheat_flags",           "type": {"type":"array","items":"string"}, "default": [],
+      "doc": "Producer-side cheat flags: AIMBOT_SUSPECTED, SPEEDHACK_SUSPECTED, etc."},
+    {"name": "is_suspicious",         "type": "boolean","default": false},
+    {"name": "exceeds_velocity_limit","type": "boolean","default": false},
+    {"name": "inhuman_reaction",      "type": "boolean","default": false},
+    {"name": "schema_version",        "type": "string", "default": "1.0"},
+    {"name": "state_ts",              "type": "string", "doc": "ISO-8601 server timestamp"}
+  ]
+}

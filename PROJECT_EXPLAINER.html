@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gaming Analytics — Complete Project Explainer</title>
+<style>
+:root{
+  --bg:#07090f;--surface:#0f1420;--surface2:#161d2e;--border:rgba(99,102,241,.18);
+  --indigo:#6366f1;--cyan:#06b6d4;--green:#10b981;--orange:#f59e0b;
+  --purple:#a855f7;--red:#ef4444;--pink:#ec4899;
+  --text:#e2e8f0;--muted:#94a3b8;--dim:#475569;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+  display:flex;gap:.5rem;padding:.8rem 2rem;overflow-x:auto}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--muted);
+  padding:.4rem 1rem;border-radius:8px;cursor:pointer;font-size:.8rem;white-space:nowrap;
+  transition:all .2s}
+.nav-btn:hover,.nav-btn.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+/* SECTIONS */
+.section{display:none;padding:2rem;max-width:1100px;margin:0 auto}
+.section.active{display:block}
+/* HERO */
+.hero{text-align:center;padding:3rem 1rem}
+.hero h1{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;
+  background:linear-gradient(135deg,#fff,var(--cyan),var(--indigo));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1rem}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:600px;margin:0 auto 2rem}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.2rem}
+.card h2{font-size:1.2rem;margin-bottom:.8rem}
+.card p,.card li{color:var(--muted);font-size:.9rem;margin-bottom:.4rem}
+.card ul{padding-left:1.2rem}
+/* ANALOGY BOX */
+.analogy{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(6,182,212,.08));
+  border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:1.2rem;margin:1rem 0}
+.analogy .label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--indigo);margin-bottom:.5rem}
+.analogy p{color:var(--text);font-size:.92rem}
+/* PIPELINE FLOW */
+.flow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:1.5rem 0}
+.flow-box{background:var(--surface2);border-radius:12px;padding:.8rem 1rem;
+  text-align:center;flex:1;min-width:100px;border:1.5px solid}
+.flow-box.src  {border-color:var(--cyan);  box-shadow:0 0 15px rgba(6,182,212,.2)}
+.flow-box.kafka{border-color:var(--orange);box-shadow:0 0 15px rgba(245,158,11,.2)}
+.flow-box.speed{border-color:var(--green); box-shadow:0 0 15px rgba(16,185,129,.2)}
+.flow-box.batch{border-color:var(--indigo);box-shadow:0 0 15px rgba(99,102,241,.2)}
+.flow-box.serve{border-color:var(--purple);box-shadow:0 0 15px rgba(168,85,247,.2)}
+.flow-box.dash {border-color:var(--pink);  box-shadow:0 0 15px rgba(236,72,153,.2)}
+.flow-box .icon{font-size:1.6rem;margin-bottom:.3rem}
+.flow-box .name{font-size:.75rem;font-weight:700;color:#fff}
+.flow-box .tech{font-size:.62rem;color:var(--muted);font-family:monospace}
+.arrow{font-size:1.2rem;color:var(--dim);flex-shrink:0}
+/* TECH GRID */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1rem}
+.tech-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem;
+  transition:transform .2s,border-color .2s}
+.tech-card:hover{transform:translateY(-3px);border-color:var(--indigo)}
+.tech-card .t-icon{font-size:2rem;margin-bottom:.6rem}
+.tech-card h3{font-size:.95rem;font-weight:700;margin-bottom:.3rem}
+.tech-card p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.tech-card .badge{display:inline-block;margin-top:.5rem;padding:.2rem .6rem;
+  border-radius:6px;font-size:.65rem;font-weight:700;font-family:monospace}
+.b-cyan  {background:rgba(6,182,212,.15);color:var(--cyan)}
+.b-orange{background:rgba(245,158,11,.15);color:var(--orange)}
+.b-green {background:rgba(16,185,129,.15);color:var(--green)}
+.b-indigo{background:rgba(99,102,241,.15);color:var(--indigo)}
+.b-purple{background:rgba(168,85,247,.15);color:var(--purple)}
+.b-red   {background:rgba(239,68,68,.15); color:var(--red)}
+.b-pink  {background:rgba(236,72,153,.15);color:var(--pink)}
+/* STEP LIST */
+.steps{display:flex;flex-direction:column;gap:.8rem;margin-top:1rem}
+.step{display:flex;gap:1rem;background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:1.2rem;transition:border-color .2s,transform .2s}
+.step:hover{border-color:var(--indigo);transform:translateX(6px)}
+.step-num{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+.step-body h4{font-size:.95rem;font-weight:700;margin-bottom:.25rem}
+.step-body p{font-size:.83rem;color:var(--muted);line-height:1.6}
+/* LAMBDA vs KAPPA */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+.compare-col{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem}
+.compare-col h3{font-size:1rem;margin-bottom:.8rem}
+.compare-col li{font-size:.83rem;color:var(--muted);margin-bottom:.4rem;list-style:none;padding-left:1rem}
+.compare-col li::before{content:'→ ';color:var(--indigo)}
+/* PHASE TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0;margin-top:1rem}
+.tl-item{display:flex;gap:1.5rem;padding-bottom:1.5rem;position:relative}
+.tl-item::before{content:'';position:absolute;left:19px;top:40px;bottom:0;
+  width:2px;background:linear-gradient(180deg,var(--indigo),transparent)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-size:1rem;font-weight:700;
+  border:2px solid}
+.tl-dot.done {background:rgba(16,185,129,.2); border-color:var(--green);color:var(--green)}
+.tl-dot.now  {background:rgba(99,102,241,.2); border-color:var(--indigo);color:var(--indigo)}
+.tl-dot.next {background:rgba(75,85,99,.2);   border-color:var(--dim);   color:var(--dim)}
+.tl-content h3{font-size:.95rem;font-weight:700;margin-bottom:.3rem}
+.tl-content p{font-size:.82rem;color:var(--muted);line-height:1.6}
+.tl-files{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.tl-file{background:var(--surface2);border:1px solid var(--border);
+  border-radius:6px;padding:.1rem .5rem;font-size:.65rem;font-family:monospace;color:var(--cyan)}
+/* DATA CONTRACT */
+.schema-box{background:#0d1117;border:1px solid var(--border);border-radius:10px;
+  padding:1rem;font-family:monospace;font-size:.78rem;color:#a5f3fc;overflow-x:auto;margin:.8rem 0}
+/* HIGHLIGHT */
+.hl{color:#fff;font-weight:700}
+.hl-cyan  {color:var(--cyan)}
+.hl-green {color:var(--green)}
+.hl-orange{color:var(--orange)}
+.hl-purple{color:var(--purple)}
+.hl-indigo{color:var(--indigo)}
+/* CHEAT TABLE */
+table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.83rem}
+th{background:var(--surface2);padding:.6rem .8rem;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:.55rem .8rem;border-bottom:1px solid rgba(99,102,241,.08);color:var(--text)}
+tr:hover td{background:rgba(99,102,241,.05)}
+/* MINI LABEL */
+.section-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--indigo);margin-bottom:.5rem}
+.section-title{font-size:1.6rem;font-weight:800;margin-bottom:.4rem}
+.section-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+/* Divider */
+hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+/* Note box */
+.note{background:rgba(6,182,212,.08);border-left:3px solid var(--cyan);
+  padding:.8rem 1rem;border-radius:0 8px 8px 0;font-size:.84rem;color:var(--text);margin:.8rem 0}
+.warn{background:rgba(245,158,11,.08);border-left:3px solid var(--orange);
+  padding:.8rem 1rem;border-radius:0 8px 8px 0;font-size:.84rem;color:var(--text);margin:.8rem 0}
+@media(max-width:600px){.compare{grid-template-columns:1fr}.flow{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="show('intro')">🏠 Start Here</button>
+  <button class="nav-btn" onclick="show('analogy')">🧠 Simple Analogy</button>
+  <button class="nav-btn" onclick="show('pipeline')">🔄 The Pipeline</button>
+  <button class="nav-btn" onclick="show('technologies')">🧰 Technologies</button>
+  <button class="nav-btn" onclick="show('lambda')">⚖️ Lambda Architecture</button>
+  <button class="nav-btn" onclick="show('phase1')">📦 Phase 1</button>
+  <button class="nav-btn" onclick="show('phase2')">🔧 Phase 2</button>
+  <button class="nav-btn" onclick="show('phase3')">🚀 Phase 3</button>
+  <button class="nav-btn" onclick="show('anticheat')">🕵️ Anti-Cheat</button>
+  <button class="nav-btn" onclick="show('summary')">📋 Summary</button>
+</nav>
+
+<!-- ══════════ START HERE ══════════ -->
+<div id="intro" class="section active">
+  <div class="hero">
+    <h1>🎮 Gaming Analytics<br/>Anti-Cheat System</h1>
+    <p>A beginner-friendly, complete explanation of how this data engineering project works — from scratch, in plain English.</p>
+  </div>
+
+  <div class="section-label">What is this project?</div>
+  <div class="section-title">The Big Picture</div>
+  <div class="section-sub">Before any code — understand what we're actually trying to build</div>
+
+  <div class="card">
+    <h2>🎯 What Does This Project Do?</h2>
+    <p>Imagine you're running an online multiplayer game like CS:GO or PUBG with <strong>thousands of players</strong> playing simultaneously. Two big problems arise:</p>
+    <br/>
+    <ul>
+      <li>🚨 <strong>Cheaters</strong> — players using aimbot, speedhack, wallhack to ruin the game</li>
+      <li>📊 <strong>Analytics</strong> — you need live leaderboards, match stats, player profiles</li>
+    </ul>
+    <br/>
+    <p>Our project is a <span class="hl">data pipeline</span> — a system that:</p>
+    <ul>
+      <li>✅ Collects millions of in-game events every second</li>
+      <li>✅ Detects cheaters <strong>in real-time</strong> (under 200 milliseconds!)</li>
+      <li>✅ Computes accurate leaderboards every hour</li>
+      <li>✅ Shows everything on a live dashboard</li>
+    </ul>
+  </div>
+
+  <div class="analogy">
+    <div class="label">💡 Think of it like this</div>
+    <p>A <strong>data pipeline</strong> is like a <strong>water pipeline</strong>. Water (data) flows from a source (game events), through pipes (Kafka), gets treated/filtered (Flink/Spark), stored in a tank (PostgreSQL/Redis), and finally comes out of your tap (Dashboard). Each part has a specific job.</p>
+  </div>
+
+  <div class="card">
+    <h2>📊 Scale We're Working At</h2>
+    <table>
+      <tr><th>Metric</th><th>Value</th></tr>
+      <tr><td>Events per second</td><td><span class="hl-green">15+ events/sec</span></td></tr>
+      <tr><td>Simulated players</td><td>1,000 players</td></tr>
+      <tr><td>Active matches</td><td>50 concurrent matches</td></tr>
+      <tr><td>Fraud detection speed</td><td><span class="hl-green">&lt; 200ms</span></td></tr>
+      <tr><td>Data sources</td><td>5 different event types</td></tr>
+      <tr><td>Total services running</td><td>8 Docker containers</td></tr>
+    </table>
+  </div>
+
+  <div class="note">👆 Click the tabs at the top to explore each section. Start with <strong>"Simple Analogy"</strong> next!</div>
+</div>
+
+<!-- ══════════ ANALOGY ══════════ -->
+<div id="analogy" class="section">
+  <div class="section-label">Understanding the project</div>
+  <div class="section-title">🧠 Real World Analogies</div>
+  <div class="section-sub">Every technical concept explained using something you already know</div>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(6,182,212,.2);border:1px solid var(--cyan);color:var(--cyan)">1</div>
+      <div class="step-body">
+        <h4>🎮 Game Events → Like a CCTV Camera</h4>
+        <p>Every action a player takes (moving, shooting, buying items, chatting) is recorded as an <strong>event</strong>. Just like a CCTV camera records everything happening in a mall — our game server records everything a player does, 15+ times every second.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(245,158,11,.2);border:1px solid var(--orange);color:var(--orange)">2</div>
+      <div class="step-body">
+        <h4>📨 Kafka → Like a Post Office</h4>
+        <p>All those events need to go somewhere immediately. <strong>Apache Kafka</strong> is like a post office — it receives all messages, sorts them into different boxes (topics), and holds them safely for 7 days. Anyone who needs a message can come and collect it from Kafka.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.2);border:1px solid var(--green);color:var(--green)">3</div>
+      <div class="step-body">
+        <h4>⚡ Apache Flink → Like a Security Guard (Real-time)</h4>
+        <p><strong>Flink</strong> watches every single event as it arrives — like a security guard watching the CCTV live. The moment it sees suspicious behaviour (too many headshots, moving too fast), it raises an alert immediately. It never waits.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(99,102,241,.2);border:1px solid var(--indigo);color:var(--indigo)">4</div>
+      <div class="step-body">
+        <h4>🔵 Apache Spark → Like a Detective (Batch)</h4>
+        <p><strong>Spark</strong> is like a detective who reviews all recorded footage from the past hour and writes a detailed report. It's not watching live — it's processing all events together to compute accurate leaderboards and player stats. Runs every hour.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(168,85,247,.2);border:1px solid var(--purple);color:var(--purple)">5</div>
+      <div class="step-body">
+        <h4>💾 Redis → Like a Whiteboard</h4>
+        <p><strong>Redis</strong> is an in-memory database — like a whiteboard. It's super fast to read and write, but it's not permanent (can be erased). We use it to store the latest fraud scores and live leaderboards so the dashboard can read them in under 1 millisecond.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(168,85,247,.2);border:1px solid var(--purple);color:var(--purple)">6</div>
+      <div class="step-body">
+        <h4>🐘 PostgreSQL → Like a Filing Cabinet</h4>
+        <p><strong>PostgreSQL</strong> is a permanent database — like a filing cabinet. Everything is stored safely and can be queried anytime. Unlike Redis, data here survives restarts. This is where all historical transaction records live.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(236,72,153,.2);border:1px solid var(--pink);color:var(--pink)">7</div>
+      <div class="step-body">
+        <h4>📊 Superset + Grafana → Like a TV News Channel</h4>
+        <p><strong>Superset</strong> shows business analytics (leaderboards, fraud reports, player profiles) — like the news anchor presenting the story. <strong>Grafana</strong> shows real-time system health and alerts — like the breaking news ticker at the bottom of the screen.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(245,158,11,.2);border:1px solid var(--orange);color:var(--orange)">8</div>
+      <div class="step-body">
+        <h4>🛠️ dbt → Like a Chef's Recipe Book</h4>
+        <p><strong>dbt</strong> (data build tool) takes raw messy data from PostgreSQL and transforms it into clean, organized tables using SQL — like a chef taking raw ingredients and turning them into a proper dish following a recipe. It runs transformation "models" in order.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.2);border:1px solid var(--green);color:var(--green)">9</div>
+      <div class="step-body">
+        <h4>🐳 Docker → Like a Lunchbox</h4>
+        <p><strong>Docker</strong> packages each service (Kafka, Flink, etc.) into a container — like a separate compartment in a lunchbox. Each compartment holds exactly what it needs, doesn't mix with others, and the whole lunchbox (docker-compose) starts all of them together with one command.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ PIPELINE ══════════ -->
+<div id="pipeline" class="section">
+  <div class="section-label">How data flows</div>
+  <div class="section-title">🔄 The Complete Data Pipeline</div>
+  <div class="section-sub">Follow one gaming event from birth to dashboard — step by step</div>
+
+  <div class="card">
+    <h2>🗺️ Full Data Flow Map</h2>
+    <div class="flow">
+      <div class="flow-box src">
+        <div class="icon">🎮</div>
+        <div class="name">5 Producers</div>
+        <div class="tech">Python scripts</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box kafka">
+        <div class="icon">📨</div>
+        <div class="name">Apache Kafka</div>
+        <div class="tech">6 topics</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box speed">
+        <div class="icon">⚡</div>
+        <div class="name">Flink</div>
+        <div class="tech">Speed Layer</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box serve">
+        <div class="icon">⚡💾</div>
+        <div class="name">Redis</div>
+        <div class="tech">Hot store</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box dash">
+        <div class="icon">📊</div>
+        <div class="name">Grafana</div>
+        <div class="tech">Live alerts</div>
+      </div>
+    </div>
+    <div class="flow">
+      <div class="flow-box src" style="opacity:0;pointer-events:none">
+        <div class="icon">🎮</div><div class="name">.</div>
+      </div>
+      <div class="arrow" style="opacity:0">→</div>
+      <div class="flow-box batch">
+        <div class="icon">🔵</div>
+        <div class="name">Spark</div>
+        <div class="tech">Batch Layer</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box serve">
+        <div class="icon">🐘💾</div>
+        <div class="name">PostgreSQL</div>
+        <div class="tech">Cold store</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box dash">
+        <div class="icon">📈</div>
+        <div class="name">Superset</div>
+        <div class="tech">Dashboards</div>
+      </div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">↑ Top row = Speed path (real-time). Bottom row = Batch path (hourly). Both paths read from Kafka.</p>
+  </div>
+
+  <div class="section-label" style="margin-top:2rem">Follow ONE event through the system</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background:rgba(6,182,212,.15);border:1px solid var(--cyan);color:var(--cyan)">1</div>
+      <div class="step-body">
+        <h4>🎮 Player shoots someone → Event Created</h4>
+        <p>Player "player_00042" gets a kill in match "match_a3f9". The game server (simulated by our Python producer) creates this JSON event and sends it to Kafka:</p>
+        <div class="schema-box">{ "event_id": "uuid-1234",<br/>  "player_id": "player_00042",<br/>  "match_id": "match_a3f9",<br/>  "event_type": "kill",<br/>  "is_headshot": true,<br/>  "reaction_time_ms": 62,   ← ⚠️ suspiciously fast!<br/>  "accuracy_pct": 94.5,     ← ⚠️ suspiciously high!<br/>  "timestamp": "2026-10-25T10:00:00Z" }</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(245,158,11,.15);border:1px solid var(--orange);color:var(--orange)">2</div>
+      <div class="step-body">
+        <h4>📨 Kafka receives and stores the event</h4>
+        <p>Kafka puts this event in the <span class="hl-orange">player-events</span> topic. It's now safely stored for 7 days. Kafka guarantees it won't lose this message even if a server crashes. Both Flink AND Spark can read it independently from Kafka.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)">3A</div>
+      <div class="step-body">
+        <h4>⚡ Flink reads it IMMEDIATELY (Speed Path)</h4>
+        <p>Within milliseconds, Flink reads the event and runs it through cheat detection rules:<br/>
+        ❌ reaction_time_ms = 62 → below 100ms threshold → <span class="hl" style="color:var(--red)">AIMBOT SUSPECTED</span><br/>
+        ❌ accuracy_pct = 94.5 → above 85% threshold → <span class="hl" style="color:var(--red)">MACRO SUSPECTED</span><br/>
+        Flink then writes a fraud alert to the <span class="hl-orange">fraud-alerts</span> Kafka topic and saves score to Redis.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(99,102,241,.15);border:1px solid var(--indigo);color:var(--indigo)">3B</div>
+      <div class="step-body">
+        <h4>🔵 Spark reads it in the NEXT HOURLY BATCH (Batch Path)</h4>
+        <p>One hour later, Spark reads ALL events from the past hour together. It recomputes the leaderboard from scratch, counting all kills, deaths, win rates for every player. This gives a 100% accurate result. It writes to PostgreSQL serving tables.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(168,85,247,.15);border:1px solid var(--purple);color:var(--purple)">4</div>
+      <div class="step-body">
+        <h4>💾 Serving Layer: Redis + PostgreSQL</h4>
+        <p><strong>Redis</strong> now has: player_00042's fraud score = 0.87 (high risk!), live kill count = 18<br/>
+        <strong>PostgreSQL</strong> has: full transaction history, leaderboard table, cheat reports table<br/>
+        <strong>dbt</strong> runs SQL models to join and clean this data into beautiful final tables for dashboards.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(236,72,153,.15);border:1px solid var(--pink);color:var(--pink)">5</div>
+      <div class="step-body">
+        <h4>📊 Dashboard shows the result</h4>
+        <p><strong>Grafana</strong> shows a red alert: "🚨 player_00042 flagged for AIMBOT — confidence 87%"<br/>
+        <strong>Superset</strong> shows in the cheat report dashboard: player profile, stats, which rules triggered, all flagged matches.<br/>
+        Total time from kill event → fraud alert on screen: <span class="hl-green">&lt; 200 milliseconds!</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TECHNOLOGIES ══════════ -->
+<div id="technologies" class="section">
+  <div class="section-label">Tools we use</div>
+  <div class="section-title">🧰 Every Technology Explained</div>
+  <div class="section-sub">What each tool is, why we use it, and what it does in our project</div>
+
+  <div class="tech-grid">
+
+    <div class="tech-card">
+      <div class="t-icon">🐍</div>
+      <h3>Python</h3>
+      <p><strong>What it is:</strong> A programming language, simple and powerful.<br/><br/>
+      <strong>In our project:</strong> We write all 5 event producers in Python. Also used for Flink jobs and ML model training. Python is the glue that connects everything.</p>
+      <span class="tech-badge badge b-cyan">producers/ folder</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">📨</div>
+      <h3>Apache Kafka</h3>
+      <p><strong>What it is:</strong> A distributed message queue — like a very fast, durable post office for data.<br/><br/>
+      <strong>In our project:</strong> Receives all 5 types of game events (15+/sec), stores them in 6 topics for 7 days. Both Flink (real-time) and Spark (batch) read from Kafka independently.</p>
+      <span class="tech-badge badge b-orange">Message Broker</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">⚡</div>
+      <h3>Apache Flink</h3>
+      <p><strong>What it is:</strong> A stream processing engine — processes data in real-time, event by event.<br/><br/>
+      <strong>In our project:</strong> Reads game-state events from Kafka and immediately applies cheat detection rules. Detects aimbot, speedhack, wallhack within milliseconds. This is our <strong>Speed Layer</strong>.</p>
+      <span class="tech-badge badge b-green">Speed Layer</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">🔵</div>
+      <h3>Apache Spark</h3>
+      <p><strong>What it is:</strong> A batch processing engine — processes huge amounts of data together, in chunks.<br/><br/>
+      <strong>In our project:</strong> Runs every hour, reads all events from the past hour, recomputes the full leaderboard from scratch. Also trains the ML anti-cheat model daily. This is our <strong>Batch Layer</strong>.</p>
+      <span class="tech-badge badge b-indigo">Batch Layer</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">⚡💾</div>
+      <h3>Redis</h3>
+      <p><strong>What it is:</strong> An in-memory key-value store — stores data in RAM, so reads are under 1ms.<br/><br/>
+      <strong>In our project:</strong> Stores real-time fraud scores and live leaderboard data. When Grafana needs to display "current fraud score for player X" it reads from Redis — instant response.</p>
+      <span class="tech-badge badge b-red">Hot / Speed Store</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">🐘</div>
+      <h3>PostgreSQL</h3>
+      <p><strong>What it is:</strong> A relational database (like Excel on steroids) — stores data permanently in tables with rows and columns.<br/><br/>
+      <strong>In our project:</strong> Stores ALL raw events (player actions, match logs, purchases) and the computed serving tables (leaderboard, cheat reports, player profiles).</p>
+      <span class="tech-badge badge b-purple">Cold / Batch Store</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">🛠️</div>
+      <h3>dbt (data build tool)</h3>
+      <p><strong>What it is:</strong> A SQL transformation tool — takes raw messy data and transforms it into clean, organized tables using SQL models.<br/><br/>
+      <strong>In our project:</strong> Takes raw PostgreSQL data → runs staging models (clean) → intermediate models (business logic) → mart models (final tables for dashboards).</p>
+      <span class="tech-badge badge b-orange">Transformation Layer</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">📊</div>
+      <h3>Apache Superset</h3>
+      <p><strong>What it is:</strong> An open-source BI (Business Intelligence) dashboard tool — creates charts, graphs, and reports from database data.<br/><br/>
+      <strong>In our project:</strong> Connects to PostgreSQL and shows leaderboards, cheat reports, player profiles, match analytics. Updates every 30 seconds.</p>
+      <span class="tech-badge badge b-pink">BI Dashboard</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">📈</div>
+      <h3>Grafana</h3>
+      <p><strong>What it is:</strong> A real-time monitoring and alerting dashboard — best for time-series data and live metrics.<br/><br/>
+      <strong>In our project:</strong> Connects to Redis and shows live fraud alerts, Kafka consumer lag, Flink checkpoint status, system health. Shows real-time cheat detection as it happens.</p>
+      <span class="tech-badge badge b-orange">Real-time Monitoring</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">🐳</div>
+      <h3>Docker + Docker Compose</h3>
+      <p><strong>What it is:</strong> A tool to package and run applications in isolated containers. Docker Compose manages multiple containers together.<br/><br/>
+      <strong>In our project:</strong> All 8 services (Kafka, Zookeeper, Flink, Redis, PostgreSQL, Superset, Grafana, Schema Registry) start with one command: <code>docker-compose up -d</code></p>
+      <span class="tech-badge badge b-cyan">Infrastructure</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">📋</div>
+      <h3>Apache Avro + Schema Registry</h3>
+      <p><strong>What it is:</strong> Avro is a data format (like JSON but more efficient). Schema Registry enforces a strict contract on what every event must look like.<br/><br/>
+      <strong>In our project:</strong> Every Kafka message must match the Avro schema (e.g. player_event must have player_id, timestamp, event_type). Invalid messages are rejected.</p>
+      <span class="tech-badge badge b-green">Data Contract</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="t-icon">🤖</div>
+      <h3>Scikit-learn (ML)</h3>
+      <p><strong>What it is:</strong> A Python machine learning library. We use <strong>Isolation Forest</strong> — an algorithm that finds anomalies (unusual data points).<br/><br/>
+      <strong>In our project:</strong> Trained on historical game state data. Flags players whose stats are statistically abnormal — catches sophisticated cheaters that rules miss.</p>
+      <span class="tech-badge badge b-purple">ML Anti-Cheat</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ LAMBDA ══════════ -->
+<div id="lambda" class="section">
+  <div class="section-label">Core architecture concept</div>
+  <div class="section-title">⚖️ Lambda Architecture Explained</div>
+  <div class="section-sub">The design pattern that makes our project complex and powerful</div>
+
+  <div class="card">
+    <h2>🤔 What is Architecture?</h2>
+    <p>Architecture = <strong>the blueprint of how data flows and which tools handle what job</strong>. Just like a building's architecture decides where rooms, doors, and pipes go — data architecture decides how data moves through our system.</p>
+  </div>
+
+  <div class="card">
+    <h2>⚖️ Lambda Architecture = Two Paths for Data</h2>
+    <p>Lambda Architecture processes every event <strong>twice</strong> — through two separate paths:</p>
+    <br/>
+    <div class="flow">
+      <div class="flow-box kafka" style="max-width:140px">
+        <div class="icon">📨</div>
+        <div class="name">Kafka</div>
+        <div class="tech">Single Source</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;flex:1">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div class="arrow">→</div>
+          <div class="flow-box speed" style="flex:1">
+            <div class="icon">⚡</div>
+            <div class="name">SPEED LAYER (Flink)</div>
+            <div class="tech">Real-time · Low latency · Approximate</div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="flow-box serve" style="max-width:100px">
+            <div class="icon">📡</div>
+            <div class="name">Redis</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div class="arrow">→</div>
+          <div class="flow-box batch" style="flex:1">
+            <div class="icon">🔵</div>
+            <div class="name">BATCH LAYER (Spark)</div>
+            <div class="tech">Hourly · High latency · 100% accurate</div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="flow-box serve" style="max-width:100px">
+            <div class="icon">🐘</div>
+            <div class="name">PostgreSQL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br/>
+    <div style="display:flex;gap:.5rem;align-items:center;justify-content:center">
+      <div class="flow-box serve" style="max-width:200px">
+        <div class="icon">🔗</div>
+        <div class="name">SERVING LAYER</div>
+        <div class="tech">Merges batch + speed views (dbt)</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box dash" style="max-width:200px">
+        <div class="icon">📊</div>
+        <div class="name">DASHBOARD</div>
+        <div class="tech">Superset + Grafana</div>
+      </div>
+    </div>
+  </div>
+
+  <hr/>
+
+  <div class="section-label">Lambda vs Kappa</div>
+  <div class="compare">
+    <div class="compare-col" style="border-color:rgba(99,102,241,.4)">
+      <h3>⚖️ Lambda Architecture (Our Choice)</h3>
+      <ul>
+        <li>Has BOTH batch layer AND speed layer</li>
+        <li>Speed layer: fast but slightly approximate</li>
+        <li>Batch layer: slow but perfectly accurate</li>
+        <li>Combined serving layer gives best of both</li>
+        <li>More complex to build (better for projects!)</li>
+        <li>Perfect for leaderboards (need accuracy) + fraud (need speed)</li>
+      </ul>
+    </div>
+    <div class="compare-col" style="border-color:rgba(6,182,212,.4)">
+      <h3>🌊 Kappa Architecture (Alternative)</h3>
+      <ul>
+        <li>Only ONE path — the stream path</li>
+        <li>Simpler code — one processing engine</li>
+        <li>Replay = re-run the stream from Kafka log</li>
+        <li>Less accurate for historical aggregations</li>
+        <li>Easier to build (teacher said too simple!)</li>
+        <li>Good for pure real-time use cases</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="analogy" style="margin-top:1.2rem">
+    <div class="label">💡 Lambda analogy</div>
+    <p>Imagine a cricket match. The <strong>speed layer</strong> is the commentator giving you live ball-by-ball updates (fast, but sometimes makes mistakes). The <strong>batch layer</strong> is the statistician who reviews all footage after the match and publishes the official stats (slow, but 100% accurate). The <strong>serving layer</strong> combines both — you see live updates during the match, but official stats after.</p>
+  </div>
+
+  <div class="card" style="margin-top:1rem">
+    <h2>🔑 Why Our Project Uses Lambda</h2>
+    <ul>
+      <li>🏆 <strong>Leaderboards MUST be accurate</strong> — players will complain if rankings are wrong. Batch layer recomputes from ALL historical data.</li>
+      <li>🚨 <strong>Fraud detection MUST be fast</strong> — we need to flag cheaters mid-match, not after. Speed layer catches them in &lt;200ms.</li>
+      <li>📚 <strong>More components = more learning</strong> — Lambda teaches Kafka, Flink, Spark, dbt, Redis, PostgreSQL all together.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════ PHASE 1 ══════════ -->
+<div id="phase1" class="section">
+  <div class="section-label">Phase 1</div>
+  <div class="section-title">📦 Phase 1 — Foundation Setup</div>
+  <div class="section-sub">Architecture design, project structure, GitHub repo, Docker stack, all 5 producers</div>
+
+  <div class="card" style="border-color:rgba(16,185,129,.3)">
+    <h2>✅ Status: COMPLETE</h2>
+    <p>Phase 1 is done and pushed to GitHub. Here's everything that was built:</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)">✓</div>
+      <div class="step-body">
+        <h4>🏗️ Architecture Design</h4>
+        <p>Decided on Lambda Architecture with Gaming Analytics as the domain. Chose all technologies from the allowed list in project guidelines. Created architecture diagrams.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)">✓</div>
+      <div class="step-body">
+        <h4>🐳 docker-compose.yml — 8 Services</h4>
+        <p>Defines all 8 Docker containers: Zookeeper, Kafka, Schema Registry, Kafka-init (creates topics), PostgreSQL, Redis, Flink (jobmanager + taskmanager), Superset, Grafana. One command starts everything.</p>
+        <div class="tl-files"><span class="tl-file">docker-compose.yml</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)">✓</div>
+      <div class="step-body">
+        <h4>🗄️ Database Schema — init_db.sql</h4>
+        <p>Creates all PostgreSQL tables: raw_player_events, raw_match_logs, raw_chat_messages, raw_purchases, raw_game_state (raw layer) + serving_leaderboard, serving_cheat_reports, serving_player_profiles (serving layer). Also creates indexes and views.</p>
+        <div class="tl-files"><span class="tl-file">infra/init_db.sql</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)">✓</div>
+      <div class="step-body">
+        <h4>🎮 5 Python Event Producers</h4>
+        <p>Each producer simulates a different type of game event and publishes to a Kafka topic at the required rate:</p>
+        <table style="margin-top:.5rem">
+          <tr><th>Producer</th><th>Kafka Topic</th><th>Rate</th><th>Cheating Injected?</th></tr>
+          <tr><td>player_events_producer.py</td><td>player-events</td><td>15/sec</td><td>✅ 5% rate</td></tr>
+          <tr><td>match_logs_producer.py</td><td>match-logs</td><td>1/30sec</td><td>❌</td></tr>
+          <tr><td>chat_producer.py</td><td>chat-messages</td><td>5/sec</td><td>✅ Toxic msgs</td></tr>
+          <tr><td>purchases_producer.py</td><td>purchases</td><td>1/3sec</td><td>✅ 3% bulk buy</td></tr>
+          <tr><td>game_state_producer.py</td><td>game-state</td><td>15/sec</td><td>✅ Aimbot/Speed</td></tr>
+        </table>
+        <div class="tl-files">
+          <span class="tl-file">producers/config.py</span>
+          <span class="tl-file">producers/player_events_producer.py</span>
+          <span class="tl-file">producers/match_logs_producer.py</span>
+          <span class="tl-file">producers/chat_producer.py</span>
+          <span class="tl-file">producers/purchases_producer.py</span>
+          <span class="tl-file">producers/game_state_producer.py</span>
+          <span class="tl-file">producers/run_all.py</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)">✓</div>
+      <div class="step-body">
+        <h4>⚡ Flink Anti-Cheat Job (Skeleton)</h4>
+        <p>The speed layer job that reads from game-state Kafka topic, applies rule-based cheat detection, and outputs to fraud-alerts topic. Fully working logic written.</p>
+        <div class="tl-files"><span class="tl-file">flink/jobs/anticheat_job.py</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)">✓</div>
+      <div class="step-body">
+        <h4>🔵 Spark Batch Jobs</h4>
+        <p>Leaderboard batch job (hourly recompute from PostgreSQL) and ML training job (daily Isolation Forest training on game state data).</p>
+        <div class="tl-files">
+          <span class="tl-file">spark/jobs/leaderboard_batch.py</span>
+          <span class="tl-file">spark/jobs/ml_training.py</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PHASE 2 ══════════ -->
+<div id="phase2" class="section">
+  <div class="section-label">Phase 2</div>
+  <div class="section-title">🔧 Phase 2 — Data Contracts, Transformations & Dashboards</div>
+  <div class="section-sub">Avro schemas, complete dbt model suite, Grafana + Superset dashboards</div>
+
+  <div class="card" style="border-color:rgba(99,102,241,.3)">
+    <h2>🔄 Status: IN PROGRESS — Starting Now</h2>
+    <p>Phase 2 builds the data quality and transformation layer that sits between raw data and dashboards.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background:rgba(99,102,241,.15);border:1px solid var(--indigo);color:var(--indigo)">2.1</div>
+      <div class="step-body">
+        <h4>📋 Avro Schemas — Data Contracts</h4>
+        <p><strong>What:</strong> Define the exact structure every event MUST follow.<br/>
+        <strong>Why:</strong> Without a contract, producers might send wrong data (e.g. send "kills" as a string instead of number). Schema Registry rejects invalid messages automatically.<br/>
+        <strong>Files:</strong> One .avsc file per topic defining all fields, types, defaults.</p>
+        <div class="tl-files">
+          <span class="tl-file">kafka/schemas/player_event.avsc</span>
+          <span class="tl-file">kafka/schemas/match_log.avsc</span>
+          <span class="tl-file">kafka/schemas/game_state.avsc</span>
+          <span class="tl-file">kafka/schemas/purchase.avsc</span>
+          <span class="tl-file">kafka/schemas/chat_message.avsc</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(99,102,241,.15);border:1px solid var(--indigo);color:var(--indigo)">2.2</div>
+      <div class="step-body">
+        <h4>🛠️ dbt Models — 3-Layer Transformation</h4>
+        <p><strong>What:</strong> SQL scripts that transform raw data step by step.<br/>
+        <strong>Why:</strong> Raw events are messy (nulls, wrong types, duplicates). dbt cleans and organises them.<br/>
+        <strong>3 Layers:</strong></p>
+        <table>
+          <tr><th>Layer</th><th>What it does</th><th>Example</th></tr>
+          <tr><td><span class="hl-green">Staging</span></td><td>Clean, type-cast raw data</td><td>stg_player_events.sql</td></tr>
+          <tr><td><span class="hl-orange">Intermediate</span></td><td>Business logic joins</td><td>int_player_session_stats.sql</td></tr>
+          <tr><td><span class="hl-indigo">Marts</span></td><td>Final dashboard-ready tables</td><td>mart_leaderboard.sql</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(99,102,241,.15);border:1px solid var(--indigo);color:var(--indigo)">2.3</div>
+      <div class="step-body">
+        <h4>📊 Grafana Dashboard — Real-time Alerts</h4>
+        <p><strong>What:</strong> A live dashboard showing fraud alerts, system health, Kafka metrics.<br/>
+        <strong>Why:</strong> Grafana is perfect for time-series and alerting. When Flink detects a cheater, Grafana shows an alert within seconds.<br/>
+        <strong>Panels:</strong> Fraud alerts timeline, top cheaters, Kafka lag, Flink checkpoint success rate, Redis memory.</p>
+        <div class="tl-files"><span class="tl-file">dashboards/grafana/gaming_dashboard.json</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(99,102,241,.15);border:1px solid var(--indigo);color:var(--indigo)">2.4</div>
+      <div class="step-body">
+        <h4>📈 Superset Dashboard — Business Analytics</h4>
+        <p><strong>What:</strong> Charts and reports showing leaderboards, player profiles, match analytics.<br/>
+        <strong>Why:</strong> Superset connects to PostgreSQL dbt mart tables and provides rich SQL-powered visualizations.<br/>
+        <strong>Charts:</strong> Top 100 leaderboard table, fraud rate by region bar chart, purchases heatmap, match duration distribution.</p>
+        <div class="tl-files"><span class="tl-file">dashboards/superset/dashboard_export.json</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PHASE 3 ══════════ -->
+<div id="phase3" class="section">
+  <div class="section-label">Phase 3</div>
+  <div class="section-title">🚀 Phase 3 — ML, Data Quality & Final Polish</div>
+  <div class="section-sub">ML anti-cheat model, Great Expectations data quality, full testing, README completion</div>
+
+  <div class="card" style="border-color:rgba(75,85,99,.3)">
+    <h2>⏳ Status: Coming Soon</h2>
+    <p>Phase 3 adds ML-powered fraud detection and production-grade data quality checks.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background:rgba(75,85,99,.15);border:1px solid var(--dim);color:var(--dim)">3.1</div>
+      <div class="step-body">
+        <h4>🤖 ML Anti-Cheat Model — Isolation Forest</h4>
+        <p><strong>What:</strong> A machine learning model that detects unusual player behaviour automatically.<br/>
+        <strong>How it works:</strong> Isolation Forest is trained on thousands of game state records. It learns what "normal" looks like (normal velocity, headshot rate, reaction time). Any player whose stats are very different from normal gets flagged as an anomaly.<br/>
+        <strong>Why ML?</strong> Rules can only catch cheats we already know about. ML catches new/unknown cheating patterns.</p>
+        <div class="tl-files">
+          <span class="tl-file">ml/train.py</span>
+          <span class="tl-file">ml/predict.py</span>
+          <span class="tl-file">ml/model/anticheat_model.pkl</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(75,85,99,.15);border:1px solid var(--dim);color:var(--dim)">3.2</div>
+      <div class="step-body">
+        <h4>✅ Great Expectations — Data Quality</h4>
+        <p><strong>What:</strong> A Python library that validates your data automatically.<br/>
+        <strong>Why:</strong> What if a producer sends a negative amount for a purchase? Or a null player_id? Great Expectations defines rules like "amount must be > 0" and "player_id must not be null" and checks every batch of data against them.<br/>
+        <strong>Result:</strong> Data quality report showing pass/fail for each check.</p>
+        <div class="tl-files">
+          <span class="tl-file">data_quality/expectations/player_events_suite.json</span>
+          <span class="tl-file">data_quality/great_expectations.yml</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(75,85,99,.15);border:1px solid var(--dim);color:var(--dim)">3.3</div>
+      <div class="step-body">
+        <h4>🧪 End-to-End Testing</h4>
+        <p><strong>What:</strong> Test scripts that verify the entire pipeline works correctly.<br/>
+        <strong>Tests include:</strong> Producer sends event → Kafka receives it → Flink flags it → Redis has the score → PostgreSQL has the record → Dashboard shows it.<br/>
+        <strong>Also:</strong> dbt tests validate data integrity (no duplicate event_ids, all player_ids exist in profiles table, etc.)</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(75,85,99,.15);border:1px solid var(--dim);color:var(--dim)">3.4</div>
+      <div class="step-body">
+        <h4>📄 Final Documentation + EC2 Deployment</h4>
+        <p><strong>What:</strong> Complete README with setup instructions, architecture diagram, screenshots of running dashboards.<br/>
+        <strong>EC2:</strong> Script to deploy the entire stack on an AWS EC2 t3.medium instance within the $200 budget.<br/>
+        <strong>Final submission:</strong> GitHub repo with all code, docs, and a video demo of the live pipeline.</p>
+        <div class="tl-files">
+          <span class="tl-file">infra/setup_ec2.sh</span>
+          <span class="tl-file">README.md (final)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ANTI-CHEAT ══════════ -->
+<div id="anticheat" class="section">
+  <div class="section-label">Deep dive</div>
+  <div class="section-title">🕵️ How Anti-Cheat Detection Works</div>
+  <div class="section-sub">The most interesting part of the project — explained simply</div>
+
+  <div class="card">
+    <h2>🎯 Two Detection Methods</h2>
+    <p>We use <strong>two complementary approaches</strong> to catch cheaters. Together they catch almost everything:</p>
+  </div>
+
+  <div class="compare">
+    <div class="compare-col" style="border-color:rgba(16,185,129,.3)">
+      <h3>⚡ Method 1: Rule-Based (Flink)</h3>
+      <ul>
+        <li>Runs in real-time on every event</li>
+        <li>Simple if/else rules</li>
+        <li>Catches known cheat types instantly</li>
+        <li>Result in &lt;200ms</li>
+        <li>Can't catch unknown/new cheats</li>
+      </ul>
+    </div>
+    <div class="compare-col" style="border-color:rgba(168,85,247,.3)">
+      <h3>🤖 Method 2: ML Model (Spark)</h3>
+      <ul>
+        <li>Runs daily as batch job</li>
+        <li>Isolation Forest algorithm</li>
+        <li>Catches unusual patterns (even unknown)</li>
+        <li>Result after daily training run</li>
+        <li>Misses real-time incidents</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr/>
+
+  <div class="section-label" style="margin-top:1rem">Rule-Based Detection Rules</div>
+
+  <table>
+    <tr><th>Cheat Type</th><th>What We Measure</th><th>Threshold</th><th>Why Suspicious?</th></tr>
+    <tr>
+      <td>🎯 <strong>Aimbot</strong></td>
+      <td>Headshot rate</td>
+      <td>&gt; 85% in 1-min window</td>
+      <td>Pro human players average ~25-40%. 85%+ is physically impossible.</td>
+    </tr>
+    <tr>
+      <td>🎯 <strong>Aimbot</strong></td>
+      <td>Reaction time</td>
+      <td>&lt; 100ms consistently</td>
+      <td>Human reaction time minimum is ~120ms. Under 100ms = computer-assisted.</td>
+    </tr>
+    <tr>
+      <td>💨 <strong>Speedhack</strong></td>
+      <td>Movement velocity</td>
+      <td>&gt; 300 units/sec</td>
+      <td>Game engine has a hard speed limit of 300. Exceeding it = cheating software.</td>
+    </tr>
+    <tr>
+      <td>🖱️ <strong>Macro</strong></td>
+      <td>Accuracy consistency</td>
+      <td>&gt; 85% over 5+ events</td>
+      <td>Humans have variance in accuracy. Too-perfect = automated clicking script.</td>
+    </tr>
+    <tr>
+      <td>👁️ <strong>Wallhack</strong></td>
+      <td>ML anomaly score</td>
+      <td>Isolation Forest score &lt; -0.1</td>
+      <td>Player always knows enemy positions perfectly — detected by ML as anomalous.</td>
+    </tr>
+  </table>
+
+  <div class="analogy" style="margin-top:1rem">
+    <div class="label">💡 Isolation Forest explained simply</div>
+    <p>Imagine you have 1000 player profiles. Most players cluster together (similar kill rates, similar headshot %, similar reaction times). Cheaters are <strong>isolated</strong> — their stats are far from the cluster. Isolation Forest finds these isolated outliers by trying to separate each player from the rest. Players that are easy to isolate (far from the group) get flagged as anomalies = likely cheaters.</p>
+  </div>
+</div>
+
+<!-- ══════════ SUMMARY ══════════ -->
+<div id="summary" class="section">
+  <div class="section-label">Quick reference</div>
+  <div class="section-title">📋 Complete Project Summary</div>
+  <div class="section-sub">Everything in one place — perfect for explaining to your teacher</div>
+
+  <div class="card">
+    <h2>🎯 One Paragraph Summary</h2>
+    <p>We built a <strong>Lambda Architecture data pipeline</strong> for a gaming platform. Five Python producers simulate 15+ in-game events per second (player kills, match logs, chat, purchases, game state telemetry) and publish them to <strong>Apache Kafka</strong>. From Kafka, data flows into two parallel paths: the <strong>Speed Layer</strong> (Apache Flink) processes events in real-time to detect cheaters in under 200ms using rule-based detection and ML scoring, writing results to <strong>Redis</strong>; the <strong>Batch Layer</strong> (Apache Spark) runs hourly jobs to recompute accurate leaderboards and train an Isolation Forest ML model, storing results in <strong>PostgreSQL</strong>. <strong>dbt</strong> transforms raw PostgreSQL data into clean dashboard tables through staging → intermediate → mart layers. Finally, <strong>Apache Superset</strong> displays business analytics and <strong>Grafana</strong> shows real-time fraud alerts. The entire stack runs on Docker Compose with one command.</p>
+  </div>
+
+  <div class="section-label" style="margin-top:1.5rem">Full project timeline</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <div class="tl-content">
+        <h3>Phase 1 — Foundation ✅</h3>
+        <p>Architecture design, GitHub repo, Docker stack (8 services), PostgreSQL schema, 5 Python producers, Flink skeleton, Spark batch jobs.</p>
+        <div class="tl-files">
+          <span class="tl-file">docker-compose.yml</span>
+          <span class="tl-file">producers/*.py</span>
+          <span class="tl-file">flink/jobs/anticheat_job.py</span>
+          <span class="tl-file">spark/jobs/*.py</span>
+          <span class="tl-file">infra/init_db.sql</span>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot now">2</div>
+      <div class="tl-content">
+        <h3>Phase 2 — Transformations & Dashboards 🔄</h3>
+        <p>Avro schemas, complete dbt model suite (staging/intermediate/marts), Grafana dashboard JSON, Superset dashboard config.</p>
+        <div class="tl-files">
+          <span class="tl-file">kafka/schemas/*.avsc</span>
+          <span class="tl-file">dbt/models/**/*.sql</span>
+          <span class="tl-file">dashboards/grafana/*.json</span>
+          <span class="tl-file">dashboards/superset/*.json</span>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot next">3</div>
+      <div class="tl-content">
+        <h3>Phase 3 — ML, Quality & Polish ⏳</h3>
+        <p>ML anti-cheat model (Isolation Forest), Great Expectations data quality, end-to-end tests, EC2 deployment script, final README.</p>
+        <div class="tl-files">
+          <span class="tl-file">ml/train.py</span>
+          <span class="tl-file">ml/predict.py</span>
+          <span class="tl-file">data_quality/</span>
+          <span class="tl-file">infra/setup_ec2.sh</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem">
+    <h2>🧰 Technology Stack at a Glance</h2>
+    <table>
+      <tr><th>Layer</th><th>Tool</th><th>Purpose</th></tr>
+      <tr><td>Data Source</td><td>Python (Faker)</td><td>Simulate 5 types of game events</td></tr>
+      <tr><td>Message Broker</td><td>Apache Kafka</td><td>Durable event log, 7-day retention</td></tr>
+      <tr><td>Speed Layer</td><td>Apache Flink</td><td>Real-time cheat detection &lt;200ms</td></tr>
+      <tr><td>Batch Layer</td><td>Apache Spark</td><td>Hourly leaderboard + daily ML training</td></tr>
+      <tr><td>Hot Store</td><td>Redis</td><td>Real-time scores, live leaderboard</td></tr>
+      <tr><td>Cold Store</td><td>PostgreSQL</td><td>Historical data, serving tables</td></tr>
+      <tr><td>Transformation</td><td>dbt</td><td>SQL models: raw → clean → mart</td></tr>
+      <tr><td>BI Dashboard</td><td>Apache Superset</td><td>Leaderboards, player profiles, reports</td></tr>
+      <tr><td>Monitoring</td><td>Grafana</td><td>Real-time fraud alerts, system health</td></tr>
+      <tr><td>Data Contract</td><td>Apache Avro</td><td>Enforce event schema at Kafka level</td></tr>
+      <tr><td>ML</td><td>Scikit-learn (Isolation Forest)</td><td>Anomaly detection for wallhack</td></tr>
+      <tr><td>Data Quality</td><td>Great Expectations</td><td>Validate data rules automatically</td></tr>
+      <tr><td>Infrastructure</td><td>Docker Compose</td><td>Run all 8 services with 1 command</td></tr>
+    </table>
+  </div>
+
+  <div class="note" style="margin-top:1rem">
+    🎓 <strong>Key thing to remember:</strong> This project demonstrates ALL major data engineering concepts — ingestion, streaming, batch processing, serving, transformation, visualization, data quality, and ML — in a single real-world system. That's what makes it impressive!
+  </div>
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

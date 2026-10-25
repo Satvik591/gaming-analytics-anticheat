@@ -1,0 +1,59 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw ingestion layer — written by Flink speed layer and Kafka consumers"
+    schema: public
+    tables:
+      - name: raw_player_events
+        description: "Raw player action events from game server"
+        columns:
+          - name: event_id
+            tests: [unique, not_null]
+          - name: player_id
+            tests: [not_null]
+          - name: event_type
+            tests: [not_null]
+
+      - name: raw_game_state
+        description: "Server-side tick telemetry — primary anti-cheat data source"
+        columns:
+          - name: state_id
+            tests: [unique, not_null]
+          - name: player_id
+            tests: [not_null]
+
+      - name: raw_match_logs
+        description: "End-of-match summary records"
+        columns:
+          - name: log_id
+            tests: [unique, not_null]
+          - name: match_id
+            tests: [not_null]
+
+      - name: raw_purchases
+        description: "In-game purchase transactions"
+        columns:
+          - name: purchase_id
+            tests: [unique, not_null]
+          - name: player_id
+            tests: [not_null]
+          - name: amount_usd
+            tests: [not_null]
+
+      - name: raw_chat_messages
+        description: "In-game chat messages"
+        columns:
+          - name: message_id
+            tests: [unique, not_null]
+
+  - name: serving
+    description: "Serving layer — written by Flink (speed) and Spark (batch)"
+    schema: public
+    tables:
+      - name: serving_cheat_reports
+        description: "Fraud alerts written by Flink anti-cheat job"
+      - name: serving_leaderboard
+        description: "Hourly batch leaderboard written by Spark"
+      - name: serving_player_profiles
+        description: "Player profile aggregations"

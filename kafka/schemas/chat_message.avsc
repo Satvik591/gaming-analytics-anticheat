@@ -1,0 +1,19 @@
+{
+  "type": "record",
+  "name": "ChatMessage",
+  "namespace": "com.gaming.anticheat",
+  "doc": "In-game chat message with toxicity classification",
+  "fields": [
+    {"name": "message_id",    "type": "string"},
+    {"name": "player_id",     "type": "string"},
+    {"name": "match_id",      "type": ["null","string"], "default": null},
+    {"name": "channel",       "type": {"type":"enum","name":"Channel",
+      "symbols":["team","global","whisper"]}},
+    {"name": "message_text",  "type": "string"},
+    {"name": "category",      "type": {"type":"enum","name":"Category",
+      "symbols":["normal","suspicious","toxic"]}},
+    {"name": "flagged",       "type": "boolean","default": false},
+    {"name": "schema_version","type": "string", "default": "1.0"},
+    {"name": "client_ts",     "type": "string"}
+  ]
+}

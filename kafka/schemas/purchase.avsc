@@ -1,0 +1,23 @@
+{
+  "type": "record",
+  "name": "Purchase",
+  "namespace": "com.gaming.anticheat",
+  "doc": "In-game purchase transaction",
+  "fields": [
+    {"name": "purchase_id",   "type": "string"},
+    {"name": "player_id",     "type": "string"},
+    {"name": "item_id",       "type": "string"},
+    {"name": "item_name",     "type": "string"},
+    {"name": "item_type",     "type": {"type":"enum","name":"ItemType",
+      "symbols":["skin","weapon","battlepass","currency","emote","spray"]}},
+    {"name": "quantity",      "type": "int",    "default": 1},
+    {"name": "amount_usd",    "type": "float"},
+    {"name": "currency",      "type": "string", "default": "USD"},
+    {"name": "status",        "type": {"type":"enum","name":"PurchaseStatus",
+      "symbols":["completed","pending","failed","refunded"]}, "default": "completed"},
+    {"name": "is_suspicious", "type": "boolean","default": false,
+      "doc": "True if bulk-buy anomaly detected"},
+    {"name": "schema_version","type": "string", "default": "1.0"},
+    {"name": "purchase_ts",   "type": "string"}
+  ]
+}

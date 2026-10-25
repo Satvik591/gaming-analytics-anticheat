@@ -1,0 +1,210 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "annotations": {},
+  "description": "Gaming Anti-Cheat Real-time Monitoring Dashboard",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "title": "🚨 Real-Time Fraud Alerts",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 5},
+              {"color": "red", "value": 20}
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 1},
+      "id": 2,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
+      "title": "🚨 Active Fraud Alerts",
+      "type": "stat",
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(*) as value FROM serving_cheat_reports WHERE detected_at > NOW() - INTERVAL '1 hour' AND status = 'pending'",
+          "format": "table"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    },
+    {
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "unit": "short"}
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 1},
+      "id": 3,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+      "title": "🎮 Events / sec",
+      "type": "stat",
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(*) / 60.0 as value FROM raw_player_events WHERE ingested_at > NOW() - INTERVAL '1 minute'",
+          "format": "table"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    },
+    {
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "thresholds"}, "unit": "short",
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null},
+            {"color": "yellow", "value": 50},
+            {"color": "red", "value": 100}
+          ]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 1},
+      "id": 4,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+      "title": "🕵️ Players Flagged Today",
+      "type": "stat",
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(DISTINCT player_id) as value FROM serving_cheat_reports WHERE DATE(detected_at) = CURRENT_DATE",
+          "format": "table"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    },
+    {
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "unit": "short"}
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 1},
+      "id": 5,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value"},
+      "title": "🏆 Total Players",
+      "type": "stat",
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(DISTINCT player_id) as value FROM raw_player_events",
+          "format": "table"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    },
+    {
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 2, "fillOpacity": 10}}
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 5},
+      "id": 6,
+      "options": {"tooltip": {"mode": "single"}, "legend": {"displayMode": "list", "placement": "bottom"}},
+      "title": "📈 Events Ingested Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "rawSql": "SELECT DATE_TRUNC('minute', ingested_at) AS time, COUNT(*) AS value FROM raw_player_events WHERE ingested_at > NOW() - INTERVAL '1 hour' GROUP BY 1 ORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    },
+    {
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 2, "fillOpacity": 20}}
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 5},
+      "id": 7,
+      "title": "🚨 Fraud Alerts Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "rawSql": "SELECT DATE_TRUNC('minute', detected_at) AS time, COUNT(*) AS value FROM serving_cheat_reports WHERE detected_at > NOW() - INTERVAL '1 hour' GROUP BY 1 ORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 13},
+      "id": 8,
+      "title": "🕵️ Top Flagged Players",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {"defaults": {"unit": "short"}},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 14},
+      "id": 9,
+      "title": "🏴‍☠️ Top Cheaters by Confidence Score",
+      "type": "table",
+      "options": {
+        "sortBy": [{"desc": true, "displayName": "confidence_score"}],
+        "footer": {"show": false}
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT player_id, cheat_type, ROUND(confidence_score::numeric,3) AS confidence_score, detection_method, array_to_string(triggered_rules, ', ') AS rules, status, TO_CHAR(detected_at, 'YYYY-MM-DD HH24:MI:SS') AS detected_at FROM serving_cheat_reports WHERE detected_at > NOW() - INTERVAL '24 hours' ORDER BY confidence_score DESC LIMIT 50",
+          "format": "table"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 22},
+      "id": 10,
+      "title": "📊 Cheat Type Distribution",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "unit": "short"}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 23},
+      "id": 11,
+      "title": "🥧 Cheat Types (Last 24h)",
+      "type": "piechart",
+      "options": {"pieType": "donut", "legendDisplayMode": "table", "placement": "right"},
+      "targets": [
+        {
+          "rawSql": "SELECT cheat_type AS metric, COUNT(*) AS value FROM serving_cheat_reports WHERE detected_at > NOW() - INTERVAL '24 hours' GROUP BY cheat_type ORDER BY value DESC",
+          "format": "table"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    },
+    {
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "unit": "short"}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 23},
+      "id": 12,
+      "title": "📊 Detection Method Breakdown",
+      "type": "bargauge",
+      "options": {"orientation": "horizontal", "reduceOptions": {"calcs": ["sum"]}},
+      "targets": [
+        {
+          "rawSql": "SELECT detection_method AS metric, COUNT(*) AS value FROM serving_cheat_reports WHERE detected_at > NOW() - INTERVAL '24 hours' GROUP BY detection_method",
+          "format": "table"
+        }
+      ],
+      "datasource": {"type": "postgres", "uid": "gaming_postgres"}
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["gaming", "anticheat", "real-time"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "🎮 Gaming Anti-Cheat Monitor",
+  "uid": "gaming-anticheat-001",
+  "version": 1
+}

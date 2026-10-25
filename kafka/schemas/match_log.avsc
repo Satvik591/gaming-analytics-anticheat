@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "name": "MatchLog",
+  "namespace": "com.gaming.anticheat",
+  "doc": "End-of-match summary log with full player stats",
+  "fields": [
+    {"name": "log_id",        "type": "string"},
+    {"name": "match_id",      "type": "string"},
+    {"name": "match_mode",    "type": {"type":"enum","name":"MatchMode",
+      "symbols":["ranked","casual","tournament","deathmatch"]}},
+    {"name": "map_name",      "type": "string"},
+    {"name": "region",        "type": "string"},
+    {"name": "start_ts",      "type": "string"},
+    {"name": "end_ts",        "type": "string"},
+    {"name": "duration_min",  "type": "float"},
+    {"name": "players",       "type": {"type":"array","items":"string"}, "doc": "List of player_ids"},
+    {"name": "team_a",        "type": {"type":"array","items":"string"}},
+    {"name": "team_b",        "type": {"type":"array","items":"string"}},
+    {"name": "winner",        "type": {"type":"enum","name":"Winner","symbols":["team_a","team_b","draw"]}},
+    {"name": "schema_version","type": "string","default": "1.0"}
+  ]
+}

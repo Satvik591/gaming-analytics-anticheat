@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: stg_player_events
+    description: "Cleaned and type-cast player events"
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: player_id
+        tests: [not_null]
+      - name: event_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['kill','death','move','ability_use','disconnect','connect','match_start','match_end','respawn','item_pickup']
+
+  - name: stg_game_state
+    description: "Cleaned game state telemetry with derived cheat indicators"
+    columns:
+      - name: state_id
+        tests: [unique, not_null]
+      - name: velocity
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+
+  - name: stg_purchases
+    description: "Cleaned purchase records (completed only)"
+    columns:
+      - name: purchase_id
+        tests: [unique, not_null]
+      - name: amount_usd
+        tests:
+          - not_null
+
+  - name: mart_leaderboard
+    description: "Final ranked leaderboard — hourly batch view"
+    columns:
+      - name: player_id
+        tests: [unique, not_null]
+      - name: rank
+        tests: [unique, not_null]
+      - name: kd_ratio
+        tests: [not_null]
+
+  - name: mart_cheat_report
+    description: "Anti-cheat report combining speed layer alerts and batch signals"
+    columns:
+      - name: player_id
+        tests: [not_null]
+
+  - name: mart_player_profile
+    description: "Complete player profile with activity, purchases, and risk metrics"
+    columns:
+      - name: player_id
+        tests: [unique, not_null]
