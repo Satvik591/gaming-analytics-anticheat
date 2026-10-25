@@ -1,0 +1,205 @@
+version: '3.8'
+
+networks:
+  gaming-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  zookeeper_data:
+  kafka_data:
+  superset_data:
+
+services:
+
+  # ── ZOOKEEPER ──────────────────────────────────────────
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    networks: [gaming-net]
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── KAFKA ──────────────────────────────────────────────
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    networks: [gaming-net]
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168        # 7-day retention (Kappa/Lambda requirement)
+      KAFKA_LOG_RETENTION_BYTES: -1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # ── SCHEMA REGISTRY ────────────────────────────────────
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    container_name: schema-registry
+    networks: [gaming-net]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
+  # ── KAFKA INIT (create topics) ─────────────────────────
+  kafka-init:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-init
+    networks: [gaming-net]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-c"]
+    command: |
+      "
+      echo 'Waiting for Kafka to be ready...'
+      sleep 10
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic player-events --config retention.ms=604800000
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic match-logs --config retention.ms=604800000
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic chat-messages --config retention.ms=604800000
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 --topic purchases --config retention.ms=604800000
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic game-state --config retention.ms=604800000
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 --topic fraud-alerts --config retention.ms=604800000
+      echo 'All topics created successfully!'
+      kafka-topics --list --bootstrap-server kafka:9092
+      "
+
+  # ── POSTGRESQL ─────────────────────────────────────────
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    networks: [gaming-net]
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gameadmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gamepass123}
+      POSTGRES_DB: ${POSTGRES_DB:-gaming_analytics}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gameadmin -d gaming_analytics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── REDIS ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    networks: [gaming-net]
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FLINK JOBMANAGER (Speed Layer) ─────────────────────
+  flink-jobmanager:
+    image: flink:1.18-scala_2.12-java11
+    container_name: flink-jobmanager
+    networks: [gaming-net]
+    ports:
+      - "8080:8081"
+    command: jobmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 2
+        state.backend: rocksdb
+        state.checkpoints.dir: file:///tmp/flink-checkpoints
+        execution.checkpointing.interval: 60000
+        execution.checkpointing.mode: EXACTLY_ONCE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/overview"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  flink-taskmanager:
+    image: flink:1.18-scala_2.12-java11
+    container_name: flink-taskmanager
+    networks: [gaming-net]
+    depends_on:
+      - flink-jobmanager
+    command: taskmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        taskmanager.memory.process.size: 1024m
+
+  # ── APACHE SUPERSET (BI Dashboard) ─────────────────────
+  superset:
+    image: apache/superset:latest
+    container_name: superset
+    networks: [gaming-net]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8088:8088"
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-supersecretkey_gaming_2024}
+      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://gameadmin:gamepass123@postgres/gaming_analytics
+    volumes:
+      - superset_data:/app/superset_home
+    command: >
+      bash -c "
+        superset db upgrade &&
+        superset fab create-admin --username admin --firstname Admin --lastname User --email admin@gaming.com --password admin123 &&
+        superset init &&
+        gunicorn --bind 0.0.0.0:8088 'superset.app:create_app()'
+      "
+
+  # ── GRAFANA (Monitoring & Alerts) ──────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    networks: [gaming-net]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-worldmap-panel
+    volumes:
+      - ./dashboards/grafana:/etc/grafana/provisioning/dashboards
