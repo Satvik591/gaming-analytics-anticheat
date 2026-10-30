@@ -61,7 +61,7 @@ A **production-grade Lambda Architecture** data pipeline that processes millions
 
 ```
 gaming-analytics-anticheat/
-├── 🐳 docker-compose.yml          # Full stack: Kafka, Flink, Redis, Postgres, Superset
+├── 🐳 docker-compose.yml          # Full stack: Kafka, Flink, Redis, Postgres, Grafana
 ├── 📋 requirements.txt            # Python dependencies
 ├── 🔐 .env.example               # Environment variable template
 │
@@ -107,8 +107,7 @@ gaming-analytics-anticheat/
 │   └── model/                     # Saved model artifacts
 │
 ├── dashboards/
-│   ├── superset/                  # Superset dashboard config
-│   └── grafana/                   # Grafana dashboard JSON
+│   └── grafana/                   # Unified Grafana dashboard & auto-provisioned datasources
 │
 ├── data_quality/                  # Great Expectations checks
 └── infra/
@@ -146,8 +145,7 @@ docker-compose up -d
 | Flink UI | `http://localhost:8080` | — |
 | PostgreSQL | `localhost:5432` | gameadmin / gamepass123 |
 | Redis | `localhost:6379` | — |
-| Apache Superset | `http://localhost:8088` | admin / admin123 |
-| Grafana | `http://localhost:3000` | admin / admin123 |
+| Grafana (Unified Analytics) | `http://localhost:3000` | admin / admin123 |
 
 ### 4. Install Python Dependencies
 ```bash
@@ -208,7 +206,7 @@ dbt test
 | Phase 3 | Flink speed layer (anti-cheat job) | ⏳ Pending |
 | Phase 4 | Spark batch layer + ML training | ⏳ Pending |
 | Phase 5 | dbt models + Serving layer | ⏳ Pending |
-| Phase 6 | Superset + Grafana dashboards | ⏳ Pending |
+| Phase 6 | Unified Grafana Real-Time & BI Dashboard | ⏳ Pending |
 | Phase 7 | Great Expectations data quality | ⏳ Pending |
 | Phase 8 | Testing + Documentation | ⏳ Pending |
 
