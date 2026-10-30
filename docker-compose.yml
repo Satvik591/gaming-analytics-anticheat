@@ -9,7 +9,6 @@ volumes:
   redis_data:
   zookeeper_data:
   kafka_data:
-  superset_data:
 
 services:
 
@@ -167,30 +166,7 @@ services:
         taskmanager.numberOfTaskSlots: 4
         taskmanager.memory.process.size: 1024m
 
-  # ── APACHE SUPERSET (BI Dashboard) ─────────────────────
-  superset:
-    image: apache/superset:latest
-    container_name: superset
-    networks: [gaming-net]
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - "8088:8088"
-    environment:
-      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-supersecretkey_gaming_2024}
-      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://gameadmin:gamepass123@postgres/gaming_analytics
-    volumes:
-      - superset_data:/app/superset_home
-    command: >
-      bash -c "
-        superset db upgrade &&
-        superset fab create-admin --username admin --firstname Admin --lastname User --email admin@gaming.com --password admin123 &&
-        superset init &&
-        gunicorn --bind 0.0.0.0:8088 'superset.app:create_app()'
-      "
-
-  # ── GRAFANA (Monitoring & Alerts) ──────────────────────
+  # ── GRAFANA (Unified Analytics & Real-Time Alerts) ──────
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -203,3 +179,4 @@ services:
       GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-worldmap-panel
     volumes:
       - ./dashboards/grafana:/etc/grafana/provisioning/dashboards
+      - ./dashboards/grafana/datasources:/etc/grafana/provisioning/datasources

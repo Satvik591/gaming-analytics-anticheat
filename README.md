@@ -18,7 +18,7 @@ A **production-grade Lambda Architecture** data pipeline that processes millions
 - 🚨 **Detect cheaters in real-time** (< 200ms) using Apache Flink rule engine + ML
 - 📊 **Compute accurate hourly leaderboards** using Apache Spark batch jobs
 - 💾 **Serve merged batch + speed views** via PostgreSQL + Redis
-- 📈 **Visualize everything** on Apache Superset + Grafana dashboards
+- 📈 **Visualize everything** on a unified real-time & BI Grafana dashboard
 
 ---
 
@@ -28,20 +28,20 @@ A **production-grade Lambda Architecture** data pipeline that processes millions
                     ┌──────────── BATCH LAYER ─────────────────────────────────┐
                     │  Apache Spark (local mode, runs hourly via cron)          │
                     │  ├── leaderboard_batch.py  → serving_leaderboard table    │
-5 Kafka Topics ───► │  ├── player_stats_batch.py → serving_player_profiles      │──► PostgreSQL ──► Superset
-(10+ events/sec)    │  └── ml_training.py        → ml/model/anticheat_model.pkl │    (Batch Views)   Dashboard
-                    └──────────────────────────────────────────────────────────┘
-                                              │
-                    ┌──────────── SPEED LAYER ─────────────────────────────────┐
-                    │  Apache Flink (streaming, exactly-once)                   │──► Redis ──────► Grafana
-                    │  ├── anticheat_job.py  → fraud-alerts Kafka topic         │    (Speed Views)  Real-time
-                    │  └── live_stats_job.py → live match aggregates            │                   Alerts
-                    └──────────────────────────────────────────────────────────┘
-                                              │
-                                   ┌──────────▼──────────┐
-                                   │   SERVING LAYER      │
-                                   │   Merged View (dbt)  │
-                                   │   Batch + Speed      │
+5 Kafka Topics ───► │  ├── player_stats_batch.py → serving_player_profiles      │──► PostgreSQL
+(10+ events/sec)    │  └── ml_training.py        → ml/model/anticheat_model.pkl │    (Batch Views)
+                    └──────────────────────────────────────────────────────────┘          │
+                                              │                                           ▼
+                    ┌──────────── SPEED LAYER ─────────────────────────────────┐   ┌───────────────┐
+                    │  Apache Flink (streaming, exactly-once)                   │──► Unified       │
+                    │  ├── anticheat_job.py  → fraud-alerts Kafka topic         │   │ Grafana       │
+                    │  └── live_stats_job.py → live match aggregates            │──►│ Dashboard     │
+                    └──────────────────────────────────────────────────────────┘   │ (BI + Alerts) │
+                                              │                                    └───────────────┘
+                                   ┌──────────▼──────────┐                                │
+                                   │   SERVING LAYER      │                                │
+                                   │   Redis (Speed)      │────────────────────────────────┘
+                                   │   PostgreSQL (dbt)   │
                                    └─────────────────────┘
 ```
 
@@ -214,6 +214,7 @@ dbt test
 
 ---
 
-## 👤 Author
+## 👥 Authors & Team Members
 
-**Satvik591** | Data Engineering Project | 2026
+- **Satvik Sharma** ([@Satvik591](https://github.com/Satvik591)) — Pipeline Architecture, Kafka, Flink Speed Layer, Docker Infrastructure
+- **Ishu Kumar** ([@ishukumar4469-bit](https://github.com/ishukumar4469-bit)) — Serving Layer, Batch Spark Processing, Unified Grafana Analytics & Optimization

@@ -147,6 +147,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
   <button class="nav-btn" onclick="show('phase2')">🔧 Phase 2</button>
   <button class="nav-btn" onclick="show('phase3')">🚀 Phase 3</button>
   <button class="nav-btn" onclick="show('anticheat')">🕵️ Anti-Cheat</button>
+  <button class="nav-btn" onclick="show('docker')">🐳 Docker</button>
   <button class="nav-btn" onclick="show('summary')">📋 Summary</button>
 </nav>
 
@@ -917,6 +918,382 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
   <div class="analogy" style="margin-top:1rem">
     <div class="label">💡 Isolation Forest explained simply</div>
     <p>Imagine you have 1000 player profiles. Most players cluster together (similar kill rates, similar headshot %, similar reaction times). Cheaters are <strong>isolated</strong> — their stats are far from the cluster. Isolation Forest finds these isolated outliers by trying to separate each player from the rest. Players that are easy to isolate (far from the group) get flagged as anomalies = likely cheaters.</p>
+  </div>
+</div>
+
+<!-- ══════════ DOCKER ══════════ -->
+<div id="docker" class="section">
+  <div class="section-label">Infrastructure deep dive</div>
+  <div class="section-title">🐳 Docker — The Secret Glue of Our Project</div>
+  <div class="section-sub">What Docker is, why we need it, and exactly how it runs all 8 services in our project</div>
+
+  <!-- WHAT IS DOCKER -->
+  <div class="card">
+    <h2>🤔 What is Docker? (In One Line)</h2>
+    <p>Docker is a tool that lets you <span class="hl">package an application + everything it needs to run</span> into a single portable box called a <strong>Container</strong> — so it runs the same way on every computer.</p>
+  </div>
+
+  <div class="analogy">
+    <div class="label">💡 Real World Analogy — Tiffin Box</div>
+    <p>Imagine you make a perfect meal at home. You want to send it to a friend. But if you just send the recipe, they might not have the same ingredients, same utensils, same oven. <br/><br/>
+    <strong>Docker is like packing the entire meal + utensils + mini-oven into a tiffin box.</strong> Your friend just opens the box and the food is ready — exactly the same as what you made. No setup needed, no "it works on my machine" problems.</p>
+  </div>
+
+  <!-- THE PROBLEM DOCKER SOLVES -->
+  <div class="card" style="margin-top:1.2rem">
+    <h2>😩 The Problem Without Docker</h2>
+    <p>Our project uses <strong>8 different services</strong>. Without Docker, to run this project you'd have to:</p>
+    <br/>
+    <table>
+      <tr><th>Service</th><th>Without Docker — What You'd Need To Do</th></tr>
+      <tr><td>Kafka</td><td>Install Java, download Kafka, configure zookeeper.properties, start scripts manually</td></tr>
+      <tr><td>PostgreSQL</td><td>Install PostgreSQL 15 exactly, create users, set passwords, init database</td></tr>
+      <tr><td>Redis</td><td>Download Redis, compile from source (on some OS), configure max memory</td></tr>
+      <tr><td>Flink</td><td>Install Java 11 exactly, download Flink 1.18, configure taskmanager slots</td></tr>
+      <tr><td>Superset</td><td>Install Python, pip install 50+ packages, create admin user, run migrations</td></tr>
+      <tr><td>Grafana</td><td>Download binary, configure ini file, install plugins manually</td></tr>
+    </table>
+    <br/>
+    <p style="color:var(--red);font-weight:700">That's days of setup and it will break differently on every computer. 😭</p>
+  </div>
+
+  <div class="card" style="border-color:rgba(16,185,129,.3);margin-top:1rem">
+    <h2>✅ The Solution With Docker</h2>
+    <p>With Docker, the entire setup is:</p>
+    <div class="schema-box">docker-compose up -d</div>
+    <p>That's it. <strong>One command. All 8 services start in 30 seconds.</strong> Same on your laptop, your friend's laptop, or a cloud server. 🎉</p>
+  </div>
+
+  <!-- CONTAINERS vs VMs -->
+  <div class="section-label" style="margin-top:2rem">Core Concept</div>
+  <div class="section-title" style="font-size:1.2rem">📦 What is a Container?</div>
+  <div style="height:.5rem"></div>
+
+  <div class="analogy">
+    <div class="label">💡 Container vs Virtual Machine Analogy</div>
+    <p>
+    <strong>Virtual Machine (VM)</strong> = Like renting an entire flat. You get your own kitchen, bathroom, bedroom — everything. Heavy, slow to start, uses lots of RAM.<br/><br/>
+    <strong>Docker Container</strong> = Like renting a single room in a shared flat. You get your own private room, but share the building's electricity, plumbing, and foundation (the OS kernel). Lightweight, starts in seconds, uses much less RAM.
+    </p>
+  </div>
+
+  <!-- VISUAL DIAGRAM: VM vs Container -->
+  <div class="card" style="margin-top:1rem">
+    <h2>🖼️ VM vs Container — Visual Comparison</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem">
+
+      <!-- VM Side -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem">
+        <div style="text-align:center;font-weight:700;color:var(--red);margin-bottom:.8rem;font-size:.9rem">❌ Virtual Machine (Heavy)</div>
+        <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.75rem;font-family:monospace">
+          <div style="background:rgba(239,68,68,.15);border:1px solid var(--red);border-radius:6px;padding:.4rem .6rem;text-align:center">App A</div>
+          <div style="background:rgba(239,68,68,.1);border:1px dashed var(--red);border-radius:6px;padding:.4rem .6rem;text-align:center">Guest OS (Full Linux/Windows)</div>
+          <div style="background:rgba(239,68,68,.15);border:1px solid var(--red);border-radius:6px;padding:.4rem .6rem;text-align:center">App B</div>
+          <div style="background:rgba(239,68,68,.1);border:1px dashed var(--red);border-radius:6px;padding:.4rem .6rem;text-align:center">Guest OS (Full Linux/Windows)</div>
+          <div style="background:rgba(100,100,100,.2);border:1px solid var(--dim);border-radius:6px;padding:.4rem .6rem;text-align:center;color:var(--muted)">Hypervisor (VMware/VirtualBox)</div>
+          <div style="background:rgba(100,100,100,.2);border:1px solid var(--dim);border-radius:6px;padding:.4rem .6rem;text-align:center;color:var(--muted)">Host OS (Your Windows/Mac)</div>
+          <div style="background:rgba(100,100,100,.15);border:1px solid var(--dim);border-radius:6px;padding:.4rem .6rem;text-align:center;color:var(--dim)">Hardware (CPU, RAM, Disk)</div>
+        </div>
+        <p style="font-size:.72rem;color:var(--muted);margin-top:.8rem;text-align:center">Each VM needs its own full OS copy<br/>Size: 1–20 GB each | Startup: minutes</p>
+      </div>
+
+      <!-- Container Side -->
+      <div style="background:var(--surface2);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:1rem">
+        <div style="text-align:center;font-weight:700;color:var(--green);margin-bottom:.8rem;font-size:.9rem">✅ Docker Container (Lightweight)</div>
+        <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.75rem;font-family:monospace">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem">
+            <div style="background:rgba(16,185,129,.15);border:1px solid var(--green);border-radius:6px;padding:.4rem;text-align:center">📨 Kafka</div>
+            <div style="background:rgba(16,185,129,.15);border:1px solid var(--green);border-radius:6px;padding:.4rem;text-align:center">🐘 Postgres</div>
+            <div style="background:rgba(16,185,129,.15);border:1px solid var(--green);border-radius:6px;padding:.4rem;text-align:center">⚡ Flink</div>
+            <div style="background:rgba(16,185,129,.15);border:1px solid var(--green);border-radius:6px;padding:.4rem;text-align:center">💾 Redis</div>
+          </div>
+          <div style="background:rgba(6,182,212,.1);border:1px solid var(--cyan);border-radius:6px;padding:.4rem .6rem;text-align:center;color:var(--cyan)">Docker Engine (Container Runtime)</div>
+          <div style="background:rgba(100,100,100,.2);border:1px solid var(--dim);border-radius:6px;padding:.4rem .6rem;text-align:center;color:var(--muted)">Host OS (Your Windows/Linux)</div>
+          <div style="background:rgba(100,100,100,.15);border:1px solid var(--dim);border-radius:6px;padding:.4rem .6rem;text-align:center;color:var(--dim)">Hardware (CPU, RAM, Disk)</div>
+        </div>
+        <p style="font-size:.72rem;color:var(--muted);margin-top:.8rem;text-align:center">Containers SHARE the host OS kernel<br/>Size: 50–500 MB each | Startup: seconds</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEY CONCEPTS -->
+  <div class="section-label" style="margin-top:2rem">Key Docker Concepts</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background:rgba(6,182,212,.15);border:1px solid var(--cyan);color:var(--cyan)">1</div>
+      <div class="step-body">
+        <h4>🖼️ Docker Image — The Recipe</h4>
+        <p>A Docker <strong>Image</strong> is a read-only template/blueprint. It contains the app + all its dependencies, but it's not running yet.<br/><br/>
+        <strong>Analogy:</strong> An image is like a <strong>recipe card</strong>. The recipe describes every ingredient and step — but it's not food yet. You can make many meals (containers) from one recipe (image).<br/><br/>
+        <strong>In our project:</strong> <code>confluentinc/cp-kafka:7.5.0</code> is the official Kafka image. It already has Java + Kafka pre-installed inside it.</p>
+        <div class="schema-box"># Pull an image from Docker Hub (like downloading the recipe)
+docker pull confluentinc/cp-kafka:7.5.0</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)">2</div>
+      <div class="step-body">
+        <h4>📦 Docker Container — The Running Instance</h4>
+        <p>A <strong>Container</strong> is a running instance of an image. It's isolated from other containers (its own filesystem, network, process space) but shares the host OS kernel.<br/><br/>
+        <strong>Analogy:</strong> Container = actual food cooked from the recipe. You can cook the same recipe (image) 10 times and get 10 separate meals (containers), each independent.<br/><br/>
+        <strong>In our project:</strong> When Docker starts, it creates 8 separate running containers from 8 different images.</p>
+        <div class="schema-box"># Run a container from an image
+docker run --name kafka confluentinc/cp-kafka:7.5.0</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(245,158,11,.15);border:1px solid var(--orange);color:var(--orange)">3</div>
+      <div class="step-body">
+        <h4>🌐 Docker Network — The Private LAN</h4>
+        <p>By default, containers can't talk to each other. Docker <strong>Networks</strong> create a private local network so containers can communicate using their names as hostnames.<br/><br/>
+        <strong>Analogy:</strong> Like putting all 8 computers in the same office WiFi network. Once they're on <code>gaming-net</code>, Flink can reach Kafka by just typing <code>kafka:9092</code> — no IP addresses needed.<br/><br/>
+        <strong>In our project:</strong> All 8 services join <code>gaming-net</code>. That's why Flink's config says <code>bootstrap.servers: kafka:9092</code> — "kafka" is literally the container name!</p>
+        <div class="schema-box">networks:
+  gaming-net:       # Our private network
+    driver: bridge  # Standard network type</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(168,85,247,.15);border:1px solid var(--purple);color:var(--purple)">4</div>
+      <div class="step-body">
+        <h4>💾 Docker Volume — Persistent Storage</h4>
+        <p>By default, when a container stops, ALL its data is lost (like RAM). Docker <strong>Volumes</strong> mount a folder from your computer into the container so data survives restarts.<br/><br/>
+        <strong>Analogy:</strong> Like plugging a USB drive into the container. Even if the container is destroyed and recreated, the USB drive (volume) keeps all the data safe.<br/><br/>
+        <strong>In our project:</strong> PostgreSQL uses <code>postgres_data</code> volume — so all your game data is safe even if you restart the container.</p>
+        <div class="schema-box">volumes:
+  postgres_data:  # Named volume — survives container restarts
+  redis_data:
+  kafka_data:</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(236,72,153,.15);border:1px solid var(--pink);color:var(--pink)">5</div>
+      <div class="step-body">
+        <h4>🚢 Docker Compose — The Conductor</h4>
+        <p><strong>Docker Compose</strong> is a tool that reads a <code>docker-compose.yml</code> file and starts/stops multiple containers together in the right order with the right settings.<br/><br/>
+        <strong>Analogy:</strong> Like a <strong>concert conductor</strong>. Instead of telling each musician (container) what to do one by one, the conductor (Compose) reads the score (yml file) and coordinates everyone to start at the right time, in the right order.<br/><br/>
+        <strong>In our project:</strong> Compose starts Zookeeper first → waits for it → starts Kafka → waits → creates topics → then starts Flink, Postgres, Redis, Superset, Grafana.</p>
+        <div class="schema-box">docker-compose up -d    # Start all services in background
+docker-compose ps       # Check status of all services
+docker-compose logs -f  # Watch live logs from all services
+docker-compose down     # Stop and remove all containers</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:rgba(99,102,241,.15);border:1px solid var(--indigo);color:var(--indigo)">6</div>
+      <div class="step-body">
+        <h4>🏥 Health Checks — Auto-Recovery</h4>
+        <p>Docker can automatically check if a container is actually working (not just running). If it's unhealthy, Docker can restart it or wait before starting dependent services.<br/><br/>
+        <strong>In our project:</strong> Kafka's health check pings the broker API every 15 seconds. Only after Kafka is healthy does the kafka-init container start creating topics. This prevents startup race conditions.</p>
+        <div class="schema-box">healthcheck:
+  test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+  interval: 15s   # Check every 15 seconds
+  timeout: 10s    # Fail if no response in 10s
+  retries: 10     # Try 10 times before marking unhealthy</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUR PROJECT'S DOCKER MAP -->
+  <div class="section-label" style="margin-top:2rem">Our Project's Docker Setup</div>
+
+  <div class="card">
+    <h2>🗺️ All 8 Containers in Our docker-compose.yml</h2>
+    <p style="margin-bottom:1rem;color:var(--muted)">Here's exactly what runs when you type <code>docker-compose up -d</code>:</p>
+
+    <table>
+      <tr><th>#</th><th>Container Name</th><th>Image Used</th><th>Port</th><th>Role in Project</th></tr>
+      <tr>
+        <td>1</td>
+        <td><code style="color:var(--cyan)">zookeeper</code></td>
+        <td>cp-zookeeper:7.5.0</td>
+        <td>2181</td>
+        <td>Kafka's internal coordinator — manages which Kafka broker is leader</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><code style="color:var(--orange)">kafka</code></td>
+        <td>cp-kafka:7.5.0</td>
+        <td>9092, 29092</td>
+        <td>The message broker — receives all 5 event streams from producers</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><code style="color:var(--orange)">schema-registry</code></td>
+        <td>cp-schema-registry:7.5.0</td>
+        <td>8081</td>
+        <td>Enforces Avro data contracts — rejects malformed events</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><code style="color:var(--orange)">kafka-init</code></td>
+        <td>cp-kafka:7.5.0</td>
+        <td>—</td>
+        <td>One-time setup: creates all 6 Kafka topics, then exits</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><code style="color:var(--purple)">postgres</code></td>
+        <td>postgres:15</td>
+        <td>5432</td>
+        <td>Permanent database — stores all raw events + serving tables</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><code style="color:var(--red)">redis</code></td>
+        <td>redis:7-alpine</td>
+        <td>6379</td>
+        <td>In-memory cache — live fraud scores + leaderboard speed view</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><code style="color:var(--green)">flink-jobmanager</code></td>
+        <td>flink:1.18</td>
+        <td>8080</td>
+        <td>Speed layer brain — coordinates Flink streaming jobs</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td><code style="color:var(--green)">flink-taskmanager</code></td>
+        <td>flink:1.18</td>
+        <td>—</td>
+        <td>Speed layer worker — actually runs the anti-cheat detection</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td><code style="color:var(--pink)">superset</code></td>
+        <td>apache/superset</td>
+        <td>8088</td>
+        <td>Business intelligence dashboard — leaderboards, cheat reports</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td><code style="color:var(--pink)">grafana</code></td>
+        <td>grafana/grafana</td>
+        <td>3000</td>
+        <td>Real-time monitoring — fraud alerts, system health panels</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- STARTUP ORDER DIAGRAM -->
+  <div class="card" style="margin-top:1.2rem">
+    <h2>⏱️ Startup Order — Who Waits for Whom?</h2>
+    <p style="color:var(--muted);margin-bottom:1rem">Docker Compose uses <code>depends_on + healthcheck</code> to start services in the correct order:</p>
+
+    <div class="steps" style="gap:.5rem">
+      <div class="step" style="padding:.8rem">
+        <div class="step-num" style="background:rgba(6,182,212,.15);border:1px solid var(--cyan);color:var(--cyan);width:30px;height:30px;font-size:.75rem">1</div>
+        <div class="step-body">
+          <h4 style="font-size:.85rem">🦓 Zookeeper starts first</h4>
+          <p>No dependencies. Starts immediately.</p>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--dim);font-size:1.2rem">↓ waits until healthy</div>
+      <div class="step" style="padding:.8rem">
+        <div class="step-num" style="background:rgba(245,158,11,.15);border:1px solid var(--orange);color:var(--orange);width:30px;height:30px;font-size:.75rem">2</div>
+        <div class="step-body">
+          <h4 style="font-size:.85rem">📨 Kafka starts</h4>
+          <p>Waits for Zookeeper to be healthy first.</p>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--dim);font-size:1.2rem">↓ waits until healthy</div>
+      <div class="step" style="padding:.8rem">
+        <div class="step-num" style="background:rgba(245,158,11,.15);border:1px solid var(--orange);color:var(--orange);width:30px;height:30px;font-size:.75rem">3</div>
+        <div class="step-body">
+          <h4 style="font-size:.85rem">📋 Schema Registry + kafka-init start together</h4>
+          <p>Both wait for Kafka. kafka-init creates all 6 topics then exits.</p>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--dim);font-size:1.2rem">↓ parallel start</div>
+      <div class="step" style="padding:.8rem">
+        <div class="step-num" style="background:rgba(168,85,247,.15);border:1px solid var(--purple);color:var(--purple);width:30px;height:30px;font-size:.75rem">4</div>
+        <div class="step-body">
+          <h4 style="font-size:.85rem">🐘 PostgreSQL + ⚡ Redis + ⚡ Flink — all start in parallel</h4>
+          <p>No dependency on each other. All three start simultaneously.</p>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--dim);font-size:1.2rem">↓ waits for postgres healthy</div>
+      <div class="step" style="padding:.8rem">
+        <div class="step-num" style="background:rgba(236,72,153,.15);border:1px solid var(--pink);color:var(--pink);width:30px;height:30px;font-size:.75rem">5</div>
+        <div class="step-body">
+          <h4 style="font-size:.85rem">📊 Superset + Grafana start last</h4>
+          <p>Superset waits for PostgreSQL to be ready. Grafana starts independently.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTS EXPLAINED -->
+  <div class="card" style="margin-top:1.2rem">
+    <h2>🚪 What Are Ports? (And Why They Matter)</h2>
+    <div class="analogy" style="margin-bottom:1rem">
+      <div class="label">💡 Port Analogy</div>
+      <p>Think of your computer as a big apartment building. Each apartment has a number (port). Docker containers live inside the building. <strong>Port mapping</strong> creates a doorbell at the main entrance that rings a specific apartment inside.<br/><br/>
+      <code>29092:9092</code> means: "If someone knocks on door 29092 from outside → forward them to apartment 9092 inside the container."</p>
+    </div>
+    <table>
+      <tr><th>Service</th><th>Port Mapping</th><th>Open in Browser</th></tr>
+      <tr><td>Kafka (external)</td><td>29092 → 9092</td><td>Used by your Python producers</td></tr>
+      <tr><td>Schema Registry</td><td>8081 → 8081</td><td><code>http://localhost:8081</code></td></tr>
+      <tr><td>Flink Dashboard</td><td>8080 → 8081</td><td><code>http://localhost:8080</code> ← see jobs!</td></tr>
+      <tr><td>PostgreSQL</td><td>5432 → 5432</td><td>Connect via DBeaver/pgAdmin</td></tr>
+      <tr><td>Redis</td><td>6379 → 6379</td><td>Connect via Redis CLI</td></tr>
+      <tr><td>Apache Superset</td><td>8088 → 8088</td><td><code>http://localhost:8088</code> ← dashboards!</td></tr>
+      <tr><td>Grafana</td><td>3000 → 3000</td><td><code>http://localhost:3000</code> ← real-time alerts!</td></tr>
+    </table>
+  </div>
+
+  <!-- DOCKER'S ROLE IN EACH PHASE -->
+  <div class="card" style="margin-top:1.2rem">
+    <h2>🎯 Docker's Role in Each Phase of Our Project</h2>
+    <table>
+      <tr><th>Phase</th><th>What Docker Does</th></tr>
+      <tr>
+        <td><span class="hl-green">Phase 1</span></td>
+        <td>Runs Kafka (receives all 5 event streams) + PostgreSQL (stores raw events) + Redis (speed store) + Flink (speed layer anti-cheat job) — all from <code>docker-compose up -d</code></td>
+      </tr>
+      <tr>
+        <td><span class="hl-indigo">Phase 2</span></td>
+        <td>Schema Registry container enforces Avro data contracts. Superset + Grafana containers serve the dashboards connected to PostgreSQL.</td>
+      </tr>
+      <tr>
+        <td><span class="hl-orange">Phase 3</span></td>
+        <td>The full stack on EC2 — same docker-compose.yml runs identically on the cloud server as it does on your laptop. That's the beauty of containerization.</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- COMMANDS CHEATSHEET -->
+  <div class="card" style="margin-top:1.2rem">
+    <h2>📋 Docker Commands Cheat Sheet</h2>
+    <div class="schema-box"># ── Start / Stop ──────────────────────────────────────────
+docker-compose up -d          # Start all containers in background
+docker-compose down           # Stop and remove all containers
+docker-compose restart kafka  # Restart only the Kafka container
+
+# ── Monitor ───────────────────────────────────────────────
+docker-compose ps             # See all containers + their status
+docker-compose logs -f        # Watch live logs from ALL containers
+docker-compose logs kafka     # See logs for only Kafka
+
+# ── Debug ─────────────────────────────────────────────────
+docker exec -it kafka bash    # Go INSIDE the Kafka container
+docker stats                  # Live CPU + RAM usage per container
+
+# ── Cleanup ───────────────────────────────────────────────
+docker-compose down -v        # Stop + delete volumes (CAREFUL: loses DB data!)
+docker system prune           # Clean up unused images/containers</div>
+  </div>
+
+  <div class="note" style="margin-top:1rem">
+    🎓 <strong>Key takeaway:</strong> Docker turns a complex 8-service setup that would normally take days to configure into a <strong>single command</strong> that runs identically everywhere. That's why every modern data engineering project uses it.
   </div>
 </div>
 
